@@ -1,67 +1,103 @@
-/* console.log('hello world');
+console.log("test");
 
-let gameboard = [
-    "x",  "x",  "x",
-    "o",  "o",  "x",
-    "x",  "o",  "o"
-];
+//Gameboard object -> module IIFE
+//gameboard array inside object
 
-console.log(gameboard[0], gameboard[1], gameboard[2]);
-console.log(gameboard[3], gameboard[4], gameboard[5]);
-console.log(gameboard[6], gameboard[7], gameboard[8]);
 
-function checkIfEqual(){
+const gameBoard =(()=>{
+    let board = [
+        "1","2","3",
+        "4","5","6",
+        "7","8","9"
+    ];
 
-if(gameboard[0]==gameboard[1] && gameboard[0]==gameboard[2]){
-    console.log("equal");
-}
-else{
-    console.log('not equal');
-}
-
-}; */
-
-/* const personFactory = (name, age) => {
-    const sayHello = () => console.log('hello!');
-    return { name, age, sayHello };
-};
-
-const jeff = personFactory('jeff', 27);
-
-console.log(jeff.name);
-console.log(jeff.age);
-
-jeff.sayHello();
-
-const name1 = 'Maynard';
-const color = 'red';
-const number = 34;
-const food = 'rice';
-
-console.log(name1, color, number, food);
-
-console.log({name1, color, number, food}); */
-
-/* const FactoryFunction = string => {
-    const capitalizeString = () => string.toUpperCase();
-    const printString = () => console.log(`-----${capitalizeString()}-----`);
-    return {printString};
-};
-
-const taco = FactoryFunction('taco');
-
-taco.printString();
-
-console.log("test") */
-
-const counterCreator = () => {
-    let count = 0;
-    return () => {
-        console.log(count);
-        count++;
+    let playerMove = (player, move)=>{
+        //check if position is available, then apply player move
+        let legalMove;
+        if(board[move]!=="X" && board[move]!=="O"){
+            board[move] = player.piece;
+            
+            console.log(`${player.name} placed an "${player.piece}" at ${move}`);
+            legalMove=true;
+        }
+        else{
+            alert("Position already occupied");
+            legalMove=false;
+        }
+        printBoard();
+        return legalMove;
     };
-};
 
-const counter = counterCreator();
+    let printBoard =() =>{
+        console.log(board[0], board[1], board[2]);
+        console.log(board[3], board[4], board[5]);
+        console.log(board[6], board[7], board[8]);
+    }
 
-counter();
+    let checkForWin = ()=>{
+        //check every win condition, return answer
+        let gameOver = false;
+        let win0,win1,win2,win3,win4 = false;
+        win0 = board[0]==board[1] && board[0]==board[2];    //top row
+        win1 = board[3]==board[4] && board[3]==board[5];    //middle row
+        win2 = board[6]==board[7] && board[6]==board[8];    //bottom row
+        win3 = board[0]==board[4] && board[0]==board[8];    //backslash diagonal
+        win4 = board[6]==board[4] && board[6]==board[2];    //forward slash diagonal
+        if(win0 || win1 || win2 || win3 || win4){
+            gameOver=true;
+        }
+        return gameOver;
+    }
+
+    return {playerMove, printBoard, checkForWin};
+})();
+
+
+//Player factory
+const Player = (name, piece)=>{
+    const identifySelf = ()=> console.log(`My name is ${name}, my game piece is "${piece}"`);
+    return {name, piece, identifySelf};
+}
+
+const player1 = Player("Juanito","X");
+const player2 = Player("Martin", "O");
+
+
+const gameFlow = (()=>{
+    let gameState = true;
+    let player1Turn = true;
+    let count=0;
+    
+    return (move)=>{
+        if(gameState){
+            console.log("init gameState= " + gameState);
+            console.log("gameFlow move= " + move)
+            let player = player1Turn ? player1 : player2;
+            let legalMove = gameBoard.playerMove(player, move);
+            if(legalMove){
+                //updateBoard with player.piece
+                player1Turn = !player1Turn;
+                ++count;
+            }
+            //call function to check if someone won or tied
+            //use return from function as condition for if statement
+            if(gameBoard.checkForWin() || count>8){
+                gameState=false;
+                alert("Game over!")
+            };
+        }
+        console.log("end gameState= " + gameState);
+        //updateBoard
+    }
+
+})();
+ 
+const boardPositionList = document.querySelectorAll(".boardPosition");
+
+boardPositionList.forEach((position)=>{
+    position.addEventListener("click",()=>{
+        let move = position.dataset.pos;
+        console.log("Button click move= " +move);
+        gameFlow(move);
+    })
+});
