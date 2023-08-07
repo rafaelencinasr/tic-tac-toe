@@ -155,7 +155,7 @@ const gameFlow = (()=>{
             } else if(count>8){
                 // else if the count is greater than 8 and a player didn't win, display a tie message
                 player1Turn = true;
-                nextPlayer.textContent = `It's a tie!👔`;
+                nextPlayer.textContent = `It's a tie! 👔`;
             }
         }
     }
@@ -168,7 +168,7 @@ boardPositionList.forEach((position)=>{
     //add an event listener to each position
     position.addEventListener("click",()=>{
         //if any of the two players objects is still not created, display an error message 
-        if(player1==undefined || player2==undefined){alert("Please save both player's names.")}
+        if(player1==undefined || player2==undefined){alert("Please enter the names of both players.")}
         else{
             let move = position.dataset.pos;
             gameFlow(move);
