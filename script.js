@@ -47,7 +47,7 @@ const gameBoard =(()=>{
         win6 = board[0]==board[4] && board[0]==board[8] && (board[0]=="X"||board[0]=="O");    //backslash diagonal
         win7 = board[6]==board[4] && board[6]==board[2] && (board[6]=="X"||board[6]=="O");    //forward slash diagonal
         //if any of the conditions are met => the game is over
-        if(win0 || win1 || win2 || win3 || win4 || win5 || win6 || win7){
+        if(win0 || win1 || win2 || win3 || win4 || win5 || win6 || win7 ){
             gameOver=true;
         }
         return gameOver;
@@ -94,6 +94,7 @@ savePlayer1.addEventListener("click",()=>{
     const player1Name = document.querySelector("#player1Name").value;
     player1 = Player(`${player1Name}`,"X");
     console.log(player1);
+    displayStartMessage();
 })
 
 savePlayer2.addEventListener("click",()=>{
@@ -101,26 +102,43 @@ savePlayer2.addEventListener("click",()=>{
     const player2Name = document.querySelector("#player2Name").value;
     player2 = Player(`${player2Name}`,"O");
     console.log(player2)
+    displayStartMessage();
 })
 //Next player move HTML location
 const nextPlayer = document.querySelector("#nextPlayer");
 
+//Start the game message
+function displayStartMessage(){
 
+    if(!(player1==undefined) && !(player2==undefined)){
+        
+        nextPlayer.textContent = `Ready?`;
+        setTimeout(()=>{
+            nextPlayer.textContent = `${player1.name} moves`
+        }, 500);
+    }
+}
+
+//Counter for the number of moves made
 let count=0;
 
 const gameFlow = (()=>{
-  //  let gameState = true;
     let player1Turn = true;
     
     return (move)=>{
+        //Checks if the previews move ended the game, if not continue with the game
         if(!gameBoard.checkForWin()){
+            //If the game was reset (count = 0) player 1 moves first 
             if(count<1){player1Turn = true};
+
             let player = player1Turn ? player1 : player2;
+            //Shows who is next
             if(!player1Turn){
                 nextPlayer.textContent = `${player1.name} moves`;
             } else{
                 nextPlayer.textContent = `${player2.name} moves`;
             }
+            //Checks if the move was legal (space unoccupied)
             let legalMove = gameBoard.playerMove(player, move);
             if(legalMove){
                 player1Turn = !player1Turn;
@@ -129,27 +147,27 @@ const gameFlow = (()=>{
             }
             //call function to check if someone won or tied
             //use return from function as condition for if statement
-            //remove gameState
+            
             if(gameBoard.checkForWin()){
+                //if the game is over, display the current player name as the winner
                 nextPlayer.textContent = `🎇${player.name} wins!🎇`;
                 player1Turn = true;
-                count = 0;
             } else if(count>8){
+                // else if the count is greater than 8 and a player didn't win, display a tie message
                 player1Turn = true;
                 nextPlayer.textContent = `It's a tie!👔`;
-                count = 0;
-            } else{
-                
             }
         }
     }
 })();
  
-//Gameboard
+//Gameboard position node list
 const boardPositionList = document.querySelectorAll(".boardPosition");
 
 boardPositionList.forEach((position)=>{
+    //add an event listener to each position
     position.addEventListener("click",()=>{
+        //if any of the two players objects is still not created, display an error message 
         if(player1==undefined || player2==undefined){alert("Please save both player's names.")}
         else{
             let move = position.dataset.pos;
